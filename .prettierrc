@@ -1,0 +1,13 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+
+  "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": false,
+  "organizeImportsSkipDestructiveCodeActions": true,
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+
+  "endOfLine":"auto"
+}
