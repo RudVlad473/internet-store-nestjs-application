@@ -74,6 +74,7 @@ model User {
     email     String   @unique
     hash      String
     createdAt DateTime @default(now())
+    userName  String   @unique
 
     role    Role   @relation(fields: [role_id], references: [id])
     role_id String @map("role_id") @db.ObjectId
