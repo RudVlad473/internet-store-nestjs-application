@@ -8,6 +8,7 @@
   "importOrderCaseInsensitive": false,
   "organizeImportsSkipDestructiveCodeActions": true,
   "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+  
 
-  "endOfLine":"auto"
+  "endOfLine": "auto"
 }

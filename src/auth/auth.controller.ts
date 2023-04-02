@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Paths } from 'src/enums/paths';
+import { AuthDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,7 +13,7 @@ export class AuthController {
   }
 
   @Post(Paths.SIGN_UP)
-  signup() {
-    return this.authService.signup();
+  signup(@Body() userDto: AuthDto) {
+    return this.authService.signup(userDto);
   }
 }
