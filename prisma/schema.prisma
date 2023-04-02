@@ -2,140 +2,146 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model Category {
-    id   String @id @default(auto()) @map("_id") @db.ObjectId
-    name String
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
 
-    items Item[]
-    Type  Type[]
+  items Item[]
+  Type  Type[]
 }
 
 model Type {
-    id   String @id @default(auto()) @map("_id") @db.ObjectId
-    name String
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
 
-    category    Category @relation(fields: [category_id], references: [id])
-    category_id String   @map("category_id") @db.ObjectId
+  category    Category @relation(fields: [category_id], references: [id])
+  category_id String   @map("category_id") @db.ObjectId
 
-    items Item[]
+  items Item[]
 }
 
 model Brand {
-    id         String  @id @default(auto()) @map("_id") @db.ObjectId
-    name       String
-    websiteUrl String?
-    items      Item[]
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  websiteUrl String?
+  items      Item[]
 }
 
-model Role {
-    id    String @id @default(auto()) @map("_id") @db.ObjectId
-    name  String
-    users User[]
-}
+// model Role {
+//   id    String @id @default(auto()) @map("_id") @db.ObjectId
+//   name  String
+//   users User[]
+// }
 
 model ItemRating {
-    id     String @id @default(auto()) @map("_id") @db.ObjectId
-    rating Int
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  rating Int
 
-    item    Item   @relation(fields: [item_id], references: [id])
-    item_id String @map("item_id") @db.ObjectId
+  item    Item   @relation(fields: [item_id], references: [id])
+  item_id String @map("item_id") @db.ObjectId
 
-    user    User   @relation(fields: [user_id], references: [id])
-    user_id String @map("user_id") @db.ObjectId
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @map("user_id") @db.ObjectId
 }
 
 model CartItem {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-    cart    Cart   @relation(fields: [cart_id], references: [id])
-    cart_id String @map("cart_id") @db.ObjectId
+  cart    Cart   @relation(fields: [cart_id], references: [id])
+  cart_id String @map("cart_id") @db.ObjectId
 
-    item    Item   @relation(fields: [item_id], references: [id])
-    item_id String @map("item_id") @db.ObjectId
+  item    Item   @relation(fields: [item_id], references: [id])
+  item_id String @map("item_id") @db.ObjectId
 
-    quantity Int @default(1)
+  quantity Int @default(1)
 }
 
 model CommentRating {
-    id     String @id @default(auto()) @map("_id") @db.ObjectId
-    rating Int
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  rating Int
 
-    comment    Comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    comment_id String  @map("comment_id") @db.ObjectId
+  comment    Comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment_id String  @map("comment_id") @db.ObjectId
 
-    user    User   @relation(fields: [user_id], references: [id])
-    user_id String @map("user_id") @db.ObjectId
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @map("user_id") @db.ObjectId
+}
+
+enum Roles {
+  DEFAULT
+  ADMIN
 }
 
 model User {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    email     String   @unique
-    hash      String
-    createdAt DateTime @default(now())
-    userName  String   @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  hash      String
+  createdAt DateTime @default(now())
+  userName  String   @unique
 
-    role    Role   @relation(fields: [role_id], references: [id])
-    role_id String @map("role_id") @db.ObjectId
+  // role    Roles   @relation(fields: [role_id], references: [id])
+  // role_id String @map("role_id") @db.ObjectId
+  role Roles @default(DEFAULT)
 
-    cart Cart?
+  cart Cart?
 
-    ItemRatings    ItemRating[]
-    Comments       Comment[]
-    CommentRatings CommentRating[]
+  ItemRatings    ItemRating[]
+  Comments       Comment[]
+  CommentRatings CommentRating[]
 }
 
 model Cart {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-    user    User   @relation(fields: [user_id], references: [id])
-    user_id String @unique @map("user_id") @db.ObjectId
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @unique @map("user_id") @db.ObjectId
 
-    items CartItem[]
+  items CartItem[]
 }
 
 model Item {
-    id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-    title              String
-    price              Float
-    discountPercentage Int?
-    createdAt          DateTime @default(now())
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  title              String
+  price              Float
+  discountPercentage Int?
+  createdAt          DateTime @default(now())
 
-    type    Type   @relation(fields: [type_id], references: [id])
-    type_id String @map("type_id") @db.ObjectId
+  type    Type   @relation(fields: [type_id], references: [id])
+  type_id String @map("type_id") @db.ObjectId
 
-    category    Category @relation(fields: [category_id], references: [id])
-    category_id String   @map("category_id") @db.ObjectId
+  category    Category @relation(fields: [category_id], references: [id])
+  category_id String   @map("category_id") @db.ObjectId
 
-    brand    Brand?  @relation(fields: [brand_id], references: [id])
-    brand_id String? @map("brand_id") @db.ObjectId
+  brand    Brand?  @relation(fields: [brand_id], references: [id])
+  brand_id String? @map("brand_id") @db.ObjectId
 
-    ratings  ItemRating[]
-    comments Comment[]
-    carts    CartItem[]
+  ratings  ItemRating[]
+  comments Comment[]
+  carts    CartItem[]
 }
 
 model Comment {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    content   String
-    createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
 
-    item    Item   @relation(fields: [item_id], references: [id])
-    item_id String @map("item_id") @db.ObjectId
+  item    Item   @relation(fields: [item_id], references: [id])
+  item_id String @map("item_id") @db.ObjectId
 
-    user    User   @relation(fields: [user_id], references: [id])
-    user_id String @map("user_id") @db.ObjectId
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @map("user_id") @db.ObjectId
 
-    replies  Comment[] @relation("CommentToComment")
-    parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    parentId String?   @map("parent_id") @db.ObjectId
+  replies  Comment[] @relation("CommentToComment")
+  parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId String?   @map("parent_id") @db.ObjectId
 
-    ratings CommentRating[]
+  ratings CommentRating[]
 }
