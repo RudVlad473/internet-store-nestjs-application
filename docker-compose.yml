@@ -1,27 +1,18 @@
 version: '3.8'
-services:
-  dev-db:
-    image: mongo
-    container_name: dev_internet-store-nestjs-application
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-    ports:
-      - '5436:5432'
-    networks:
-      - internet-store
-  test-db:
-    image: mongo
-    container_name: test_internet-store-nestjs-application
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-    ports:
-      - '5437:5432'
-    networks:
-      - internet-store
 
 networks:
   internet-store:
+
+services:
+  dev-db:
+    image: mongo
+    container_name: dev-db
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_INITDB_DATABASE=dev-db
+    networks:
+      - internet-store
