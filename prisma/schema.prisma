@@ -10,15 +10,21 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Type {
-    id    String @id @default(auto()) @map("_id") @db.ObjectId
-    name  String
+model Category {
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+
     items Item[]
+    Type  Type[]
 }
 
-model Category {
-    id    String @id @default(auto()) @map("_id") @db.ObjectId
-    name  String
+model Type {
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+
+    category    Category @relation(fields: [category_id], references: [id])
+    category_id String   @map("category_id") @db.ObjectId
+
     items Item[]
 }
 
