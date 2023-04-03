@@ -1,18 +1,20 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Paths } from 'src/enums/paths';
-import { AuthDto } from './dto';
+import { AuthPaths } from '../enums/paths';
+import { AuthDto, SignInDto } from './dto';
 
-@Controller('auth')
+@Controller(AuthPaths.AUTH)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post(Paths.SIGN_IN)
-  signin() {
-    return this.authService.signin();
+  @HttpCode(HttpStatus.OK)
+  @Post(AuthPaths.SIGN_IN)
+  signin(@Body() signinDto: SignInDto) {
+    return this.authService.signin(signinDto);
   }
 
-  @Post(Paths.SIGN_UP)
+  @HttpCode(HttpStatus.CREATED)
+  @Post(AuthPaths.SIGN_UP)
   signup(@Body() userDto: AuthDto) {
     return this.authService.signup(userDto);
   }
