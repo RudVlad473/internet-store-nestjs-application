@@ -80,6 +80,33 @@ enum Roles {
   ADMIN
 }
 
+model Cart {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @unique @map("user_id") @db.ObjectId
+
+  items CartItem[]
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+
+  item    Item   @relation(fields: [item_id], references: [id])
+  item_id String @map("item_id") @db.ObjectId
+
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @map("user_id") @db.ObjectId
+
+  replies  Comment[] @relation("CommentToComment")
+  parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId String?   @map("parent_id") @db.ObjectId
+
+  ratings CommentRating[]
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
@@ -96,15 +123,6 @@ model User {
   ItemRatings    ItemRating[]
   Comments       Comment[]
   CommentRatings CommentRating[]
-}
-
-model Cart {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String @unique @map("user_id") @db.ObjectId
-
-  items CartItem[]
 }
 
 model Item {
@@ -126,22 +144,4 @@ model Item {
   ratings  ItemRating[]
   comments Comment[]
   carts    CartItem[]
-}
-
-model Comment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
-  createdAt DateTime @default(now())
-
-  item    Item   @relation(fields: [item_id], references: [id])
-  item_id String @map("item_id") @db.ObjectId
-
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String @map("user_id") @db.ObjectId
-
-  replies  Comment[] @relation("CommentToComment")
-  parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  parentId String?   @map("parent_id") @db.ObjectId
-
-  ratings CommentRating[]
 }
