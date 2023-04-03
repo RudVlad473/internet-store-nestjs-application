@@ -1,7 +1,13 @@
 import { User } from '@prisma/client';
-import { IsAlphanumeric, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
-type AuthUser = Pick<User, 'email' | 'userName'> & { password: string };
+export type AuthUser = Pick<User, 'email' | 'userName'> & { password: string };
 
 export class AuthDto implements AuthUser {
   @IsEmail()
@@ -12,6 +18,20 @@ export class AuthDto implements AuthUser {
   @IsNotEmpty()
   @IsAlphanumeric()
   userName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+export class SignInDto implements AuthUser {
+  @IsOptional()
+  @IsEmail()
+  email: string | undefined;
+
+  @IsOptional()
+  @IsAlphanumeric()
+  userName: string | undefined;
 
   @IsString()
   @IsNotEmpty()
