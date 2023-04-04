@@ -1,20 +1,20 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AppModule } from './../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
 import * as pactum from 'pactum';
-import { FirstLevelPaths, Paths } from '../src/enums';
+
 import {
   invalidAuthMock,
   invalidSignInMock,
   properAuthMock,
   properSignInMock,
 } from '../src/prisma/initMocks';
-import { HttpStatus } from '@nestjs/common';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { AuthPaths, UserPaths } from '../src/types/enums';
+import { AppModule } from './../src/app.module';
 
 const PORT = process.env.PORT;
 
-describe('App (e2e)', () => {
+describe('App => e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
@@ -40,7 +40,9 @@ describe('App (e2e)', () => {
     pactum.request.setBaseUrl(`http://localhost:${PORT}`);
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await prisma.cleanDb();
+
     app.close();
   });
 
@@ -49,26 +51,31 @@ describe('App (e2e)', () => {
       it('should sign up', () => {
         return pactum
           .spec()
-          .post(`/${FirstLevelPaths.AUTH}/${Paths.SIGN_UP}`)
+          .post(`/${AuthPaths.AUTH}/${AuthPaths.SIGN_UP}`)
           .withBody(properAuthMock)
           .expectStatus(HttpStatus.CREATED)
+          .stores('token', 'access_token')
           .inspect();
       });
 
       it('should NOT sign up', () => {
         return pactum
           .spec()
-          .post(`/${FirstLevelPaths.AUTH}/${Paths.SIGN_UP}`)
+          .post(`/${AuthPaths.AUTH}/${AuthPaths.SIGN_UP}`)
           .withBody(invalidAuthMock)
           .expectStatus(HttpStatus.BAD_REQUEST);
       });
+
+      it('should signup admin user', () => {});
+
+      it('should NOT signup admin user', () => {});
     });
 
     describe('Sign in', () => {
       it('should sign in', () => {
         return pactum
           .spec()
-          .post(`/${FirstLevelPaths.AUTH}/${Paths.SIGN_IN}`)
+          .post(`/${AuthPaths.AUTH}/${AuthPaths.SIGN_IN}`)
           .withBody(properSignInMock)
           .expectStatus(HttpStatus.OK)
           .inspect();
@@ -77,16 +84,71 @@ describe('App (e2e)', () => {
       it('should NOT sign in', () => {
         return pactum
           .spec()
-          .post(`/${FirstLevelPaths.AUTH}/${Paths.SIGN_IN}`)
+          .post(`/${AuthPaths.AUTH}/${AuthPaths.SIGN_IN}`)
           .withBody(invalidSignInMock)
           .expectStatus(HttpStatus.BAD_REQUEST);
       });
     });
   });
 
-  describe('User', () => {});
+  describe('User', () => {
+    describe('Details', () => {
+      it('should get own details', () => {
+        return pactum
+          .spec()
+          .get(`/${UserPaths.USER}/${UserPaths.SELF}`)
+          .withBearerToken('$S{token}')
+          .expectStatus(HttpStatus.OK)
+          .expectBodyContains(properSignInMock.userName)
+          .inspect();
+      });
 
-  describe('Item', () => {});
+      it('should get user details by username', () => {
+        return pactum
+          .spec()
+          .get(`/${UserPaths.USER}/{${UserPaths.USERNAME}}`)
+          .withPathParams(UserPaths.USERNAME, properSignInMock.userName)
+          .expectStatus(HttpStatus.OK)
+          .expectBodyContains(properSignInMock.userName)
+          .inspect();
+      });
+    });
+
+    describe('Edit', () => {});
+
+    describe('Delete', () => {});
+  });
+
+  describe('Miscellaneous', () => {
+    describe('Brand', () => {
+      it('should create brand', () => {});
+      it('should delete brand', () => {});
+      it('should update brand', () => {});
+      it('should get brand', () => {});
+    });
+
+    describe('Category', () => {
+      it('should create category', () => {});
+      it('should delete category', () => {});
+      it('should update category', () => {});
+      it('should get category', () => {});
+    });
+
+    describe('Type', () => {
+      it('should create type', () => {});
+      it('should delete type', () => {});
+      it('should update type', () => {});
+      it('should get type', () => {});
+    });
+  });
+
+  describe('Item', () => {
+    describe('Create', () => {
+      it('should create product', () => {});
+    });
+  });
+
+  describe('Reactions', () => {});
 
   describe('Cart', () => {});
 
