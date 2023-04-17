@@ -1,25 +1,27 @@
-import { User } from '@prisma/client';
-import {
-  IsAlphanumeric,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Roles, User } from '@prisma/client';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export type AuthUser = Pick<User, 'email' | 'userName'> & { password: string };
+import { IsPassword, IsRole } from '../../user/types';
+import { IsUserName } from '../decorator';
 
-export class AuthDto implements AuthUser {
+export type AuthUser = Pick<User, 'email' | 'userName'> & {
+  password: string;
+};
+
+export type SignUpUser = Pick<User, 'email' | 'userName'> & {
+  password: string;
+};
+
+export class AuthDto implements SignUpUser {
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @IsString()
+  @IsUserName()
   @IsNotEmpty()
-  @IsAlphanumeric()
   userName: string;
 
-  @IsString()
+  @IsPassword()
   @IsNotEmpty()
   password: string;
 }
@@ -30,7 +32,38 @@ export class SignInDto implements AuthUser {
   email: string | undefined;
 
   @IsOptional()
-  @IsAlphanumeric()
+  @IsUserName()
+  userName: string | undefined;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+export class AdminDto implements SignUpUser {
+  @IsOptional()
+  @IsEmail()
+  email: string | undefined;
+
+  @IsOptional()
+  @IsUserName()
+  userName: string | undefined;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsRole('ADMIN')
+  role: Roles;
+}
+
+export class SignInAdminDto implements AuthUser {
+  @IsOptional()
+  @IsEmail()
+  email: string | undefined;
+
+  @IsOptional()
+  @IsUserName()
   userName: string | undefined;
 
   @IsString()
