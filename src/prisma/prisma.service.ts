@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Roles } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
@@ -11,5 +11,31 @@ export class PrismaService extends PrismaClient {
         },
       },
     });
+  }
+
+  cleanDb() {
+    this.$transaction([
+      this.cart.deleteMany(),
+      this.itemRating.deleteMany(),
+      this.commentRating.deleteMany(),
+      this.comment.deleteMany({
+        where: {
+          parentId: {
+            not: null,
+          },
+        },
+      }),
+      this.comment.deleteMany(),
+      this.item.deleteMany(),
+      this.cartItem.deleteMany(),
+      this.user.deleteMany({
+        where: {
+          role: Roles.DEFAULT,
+        },
+      }),
+      this.type.deleteMany(),
+      this.category.deleteMany(),
+      this.brand.deleteMany(),
+    ]);
   }
 }
