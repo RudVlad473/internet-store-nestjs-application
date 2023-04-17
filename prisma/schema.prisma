@@ -12,17 +12,16 @@ datasource db {
 
 model Category {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @unique
 
-  items Item[]
-  Type  Type[]
+  Type Type[]
 }
 
 model Type {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @unique
 
-  category    Category @relation(fields: [category_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
   category_id String   @map("category_id") @db.ObjectId
 
   items Item[]
@@ -30,7 +29,7 @@ model Type {
 
 model Brand {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
+  name       String  @unique
   websiteUrl String?
   items      Item[]
 }
@@ -45,34 +44,38 @@ model ItemRating {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   rating Int
 
-  item    Item   @relation(fields: [item_id], references: [id])
+  item    Item   @relation(fields: [item_id], references: [id], onDelete: Cascade)
   item_id String @map("item_id") @db.ObjectId
 
-  user    User   @relation(fields: [user_id], references: [id])
+  user    User   @relation(fields: [user_id], references: [id], onDelete: NoAction)
   user_id String @map("user_id") @db.ObjectId
+
+  @@unique([user_id, item_id])
 }
 
 model CartItem {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  cart    Cart   @relation(fields: [cart_id], references: [id])
+  cart    Cart   @relation(fields: [cart_id], references: [id], onDelete: Cascade)
   cart_id String @map("cart_id") @db.ObjectId
 
-  item    Item   @relation(fields: [item_id], references: [id])
+  item    Item   @relation(fields: [item_id], references: [id], onDelete: Cascade)
   item_id String @map("item_id") @db.ObjectId
 
   quantity Int @default(1)
 }
 
 model CommentRating {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  rating Int
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  reaction Reaction
 
-  comment    Comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment    Comment @relation(fields: [comment_id], references: [id], onDelete: Cascade)
   comment_id String  @map("comment_id") @db.ObjectId
 
   user    User   @relation(fields: [user_id], references: [id])
   user_id String @map("user_id") @db.ObjectId
+
+  @@unique([comment_id, user_id])
 }
 
 enum Roles {
@@ -80,10 +83,15 @@ enum Roles {
   ADMIN
 }
 
+enum Reaction {
+  LIKE
+  DISLIKE
+}
+
 model Cart {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  user    User   @relation(fields: [user_id], references: [id])
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id String @unique @map("user_id") @db.ObjectId
 
   items CartItem[]
@@ -110,7 +118,7 @@ model Comment {
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
-  hash      String
+  hash      String?
   createdAt DateTime @default(now())
   userName  String   @unique
 
@@ -120,9 +128,10 @@ model User {
 
   cart Cart?
 
-  ItemRatings    ItemRating[]
-  Comments       Comment[]
-  CommentRatings CommentRating[]
+  ItemRatings     ItemRating[]
+  Comments        Comment[]
+  CommentRatings  CommentRating[]
+  GoogleAuthUsers GoogleAuthUsers[]
 }
 
 model Item {
@@ -132,16 +141,25 @@ model Item {
   discountPercentage Int?
   createdAt          DateTime @default(now())
 
-  type    Type   @relation(fields: [type_id], references: [id])
+  type    Type   @relation(fields: [type_id], references: [id], onDelete: NoAction)
   type_id String @map("type_id") @db.ObjectId
 
-  category    Category @relation(fields: [category_id], references: [id])
-  category_id String   @map("category_id") @db.ObjectId
-
-  brand    Brand?  @relation(fields: [brand_id], references: [id])
+  brand    Brand?  @relation(fields: [brand_id], references: [id], onDelete: NoAction)
   brand_id String? @map("brand_id") @db.ObjectId
 
   ratings  ItemRating[]
   comments Comment[]
   carts    CartItem[]
+}
+
+model AdminEmails {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
+}
+
+model GoogleAuthUsers {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  user    User   @relation(fields: [user_id], references: [id], onDelete: NoAction)
+  user_id String @map("user_id") @db.ObjectId
 }
