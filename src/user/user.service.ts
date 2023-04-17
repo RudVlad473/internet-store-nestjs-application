@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PayloadUser } from 'src/auth/strategy';
-import { PrismaService } from 'src/prisma/prisma.service';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { PayloadUser } from '../shared/types';
+import { EditUserDto } from './dto/editUser.dto';
 
 @Injectable()
 export class UserService {
@@ -25,6 +27,22 @@ export class UserService {
     });
 
     return this.getFullUserData(foundUser);
+  }
+
+  async editSelf({
+    email,
+    userName,
+  }: Pick<PayloadUser, 'email'> & EditUserDto) {
+    const patchedUser = await this.prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        userName,
+      },
+    });
+
+    return this.getFullUserData(patchedUser);
   }
 
   getFullUserData({ email, userName, role, createdAt }: User) {

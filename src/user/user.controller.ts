@@ -1,25 +1,34 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { UserPaths } from '../enums';
-import { GetUserDto } from './dto/getUser.dto';
-import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
-import { PayloadUser } from 'src/auth/strategy';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 
-@Controller(UserPaths.USER)
+import { User } from '../auth/decorator';
+import { FinalGuard } from '../auth/guard';
+import { PayloadUser } from '../shared/types';
+import { UserPaths } from '../shared/types/paths';
+import { dynamic } from '../shared/utils';
+import { EditUserDto } from './dto/editUser.dto';
+import { UserService } from './user.service';
+
+@Controller()
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get(UserPaths.SELF)
-  getSelf(@Req() req: Request) {
-    const user = req.user as PayloadUser;
-
+  @UseGuards(FinalGuard)
+  @Get()
+  getSelf(@User() user) {
     return this.userService.getSelf(user);
   }
 
-  @Get(`:${UserPaths.USERNAME}`)
-  getUserByUsername(@Param() { userName }: GetUserDto) {
+  @UseGuards(FinalGuard)
+  @Patch(UserPaths.SELF)
+  editSelf(@User('email') user: PayloadUser, @Body() editUserDto: EditUserDto) {
+    return this.userService.editSelf({
+      email: user.email,
+      userName: editUserDto.userName,
+    });
+  }
+
+  @Get(dynamic(UserPaths.USERNAME))
+  getUserByUsername(@Param(UserPaths.USERNAME) userName: string) {
     return this.userService.getUserByUsername(userName);
   }
 }

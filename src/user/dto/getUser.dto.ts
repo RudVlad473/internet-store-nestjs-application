@@ -1,8 +1,8 @@
 import { User } from '@prisma/client';
-import { IsAlphanumeric, IsString } from 'class-validator';
+
+import { IsUserName } from '../types';
 
 export class GetUserDto implements Pick<User, 'userName'> {
-  @IsString()
-  @IsAlphanumeric()
+  @IsUserName()
   userName: string;
 }
