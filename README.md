@@ -8,23 +8,23 @@ The application has been developed using a *test-driven development (TDD)* appro
 - **NestJS**
 - **Typescript**
 
-## Database
+# Database
 
 - **MongoDB**
 
-## ORM
+# ORM
 
 - **Prisma**
 
-##Documentation
+# Documentation
 
 - **OpenAI** (**Swagger**)
 
-##Authentification
+# Authentification
 
 - **JWT**
 
-##Testing (e2e)
+# Testing (e2e)
 
 - **Jest**
 - **PactumJS**
